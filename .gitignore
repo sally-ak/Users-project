@@ -1,0 +1,18 @@
+# Node modules & logs
+**/node_modules/
+**/npm-debug.log*
+
+# Env files
+**/.env
+**/.env.*
+
+# Test outputs
+**/coverage/
+**/.nyc_output/
+
+# Editor files
+*.swp
+.DS_Store
+
+# Docker
+**/mysql-data/
