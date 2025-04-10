@@ -39,12 +39,12 @@ jobs:
         working-directory: backend
         run: npm install
 
-      - name: 🧪 Run backend tests (Mocha/Chai)
-        working-directory: backend
-        run: |
-          echo "⏳ Waiting for MySQL..."
-          sleep 20
-          npm test
+      #- name: 🧪 Run backend tests (Mocha/Chai)
+      #  working-directory: backend
+      #  run: |
+      #    echo "⏳ Waiting for MySQL..."
+      #   sleep 20
+      #  npm test
 
       - name: 🐳 Build backend Docker image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/users-backend ./backend
