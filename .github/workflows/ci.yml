@@ -1,0 +1,62 @@
+name: Fullstack CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: users_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🟢 Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: 📦 Install backend dependencies
+        working-directory: backend
+        run: npm install
+
+      - name: 🧪 Run backend tests (Mocha/Chai)
+        working-directory: backend
+        run: |
+          echo "⏳ Waiting for MySQL..."
+          sleep 20
+          npm test
+
+      - name: 🐳 Build backend Docker image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/users-backend ./backend
+
+      - name: 🐳 Build frontend Docker image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/users-frontend ./frontend
+
+      - name: 🔐 Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: 📤 Push backend Docker image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/users-backend
+
+      - name: 📤 Push frontend Docker image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/users-frontend
